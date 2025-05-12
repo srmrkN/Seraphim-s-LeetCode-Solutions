@@ -5,6 +5,10 @@ Welcome to **Seraphim's LeetCode Solutions**! This repository is my personal col
 ## About This Repository
 Here, you'll find a growing archive of solutions crafted with care and optimized for clarity and efficiency. Each solution is a step in my quest to tackle new challenges, from arrays and strings to dynamic programming and sorting algorithms (like the Quick Sort I recently explored!). I'm continuously adding new solutions as I dive deeper into the world of algorithms, so expect regular updates.
 
+## Progress Tracker
+Want to dive deeper into my problem-solving journey? Check out my **[LeetCode Progress Tracker](https://docs.google.com/spreadsheets/d/19qzXY4bmGvv0mWyOsR4SRS7Zb5QOuNotxy78_NB_F6g/edit?usp=sharing)** on Google Sheets! It summarizes each problem with details like approach, complexity, and categories, offering a serene overview of my ongoing quest to conquer algorithms.
+
+
 ## Why This Exists
 - **Learning & Growth**: I’m passionate about sharpening my coding skills and understanding the intricacies of algorithms. This repo is my playground for experimentation and improvement.
 - **Interview Prep**: Solving problems here prepares me for technical interviews by building a strong foundation in problem-solving.
