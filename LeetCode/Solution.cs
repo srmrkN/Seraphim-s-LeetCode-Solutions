@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Formats.Asn1;
+using System.Numerics;
 using System.Text;
 
 namespace LeetCode;
@@ -464,4 +465,284 @@ public class Solution
         Console.WriteLine($"returning {i+1}");
         return i + 1;
     }
+    
+    // LeetCode Daily 2094. Finding 3-Digit Even Numbers
+    public int[] FindEvenNumbers(int[] digits) { // Not best but working and easy to understand method
+
+        var hs = new HashSet<int>();
+        int n = digits.Length;
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                for (int k = 0; k < n; k++)
+                {
+                    if(i == j || i == k || j == k) continue;
+                    int num = digits[i] * 100 + digits[j] * 10 + digits[k];
+                    if (num >= 100 && num % 2 == 0)
+                    {
+                        hs.Add(num);
+                    }
+                }
+            }
+        }
+        var nums = hs.ToList();
+        nums.Sort();
+        return nums.ToArray();
+
+    }
+    
+    // LeetCode Daily 3335. Total Characters in String After Transformations I
+    public int LengthAfterTransformations(string s, int t) { // zxyz, 3
+        int[] cnt = new int[26];
+        foreach (var ch in s)
+        {
+            cnt[ch - 'a']++;
+        }
+
+        int zIndex = 25;
+        for (int i = 0; i < t; i++)
+        {
+            int next = (1 + zIndex) % 26; // 0: next = 0, 1: next = 25, 2: next = 24
+            cnt[next] = (cnt[next] + cnt[zIndex]) % MOD; // 0: cnt[0] = (cnt[0]=(0) + cnt[25] = 2) = 2 , 1: cnt[25] = (cnt[25]=2 + cnt[24]=1) = 3, 2: cnt[24] = (cnt[24]=1 + cnt[23] = 1), cnt[23]=1, sum = 8
+            zIndex = ((zIndex - 1) + 26) % 26; // 0: zindex = 24, 1: zindex = 23...
+        }
+        
+        int ans = 0;
+        foreach (var c in cnt)
+        {
+            ans = (ans + c) % MOD; 
+        }
+        return ans;
+    }
+
+    // LeetCode Daily 3337. Total Characters in String After Transformations II
+    
+    private const int MOD = (int)1e9 + 7;
+    private const int L = 26;
+
+    private class Matrix
+    {
+        public int[,] a = new int[L, L];
+
+        public Matrix() { }
+
+        public Matrix(Matrix m)
+        {
+            for (int i = 0; i < L; i++)
+            {
+                for (int j = 0; j < L; j++)
+                {
+                    this.a[i, j] = m.a[i, j];
+                }
+            }
+        }
+
+        public Matrix Multiply(Matrix m)
+        {
+            Matrix result = new Matrix();
+            for (int i = 0; i < L; i++)
+            {
+                for (int j = 0; j < L; j++)
+                {
+                    for (int k = 0; k < L; k++)
+                    {
+                        result.a[i, j] = (int)((result.a[i,j] + (long)this.a[i, k] * m.a[k, j]) % MOD);
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    private Matrix I()
+    {
+        Matrix m = new Matrix();
+        for (int i = 0; i < L; i++)
+        {
+            m.a[i, i] = 1;
+        }
+        return m;
+    }
+
+    private Matrix QuickMultiply(Matrix x, int y)
+    {
+        // iterative exp squaring
+        Matrix answer = I();
+        Matrix current = new Matrix(x);
+        while (y > 0)
+        {
+            if ((y & 1) == 1)
+            {
+                answer = answer.Multiply(current);
+            }
+            current = current.Multiply(current);
+            y >>= 1;
+        }
+        return answer;
+    }
+    public int LengthAfterTransformations(string s, int t, IList<int> nums) {
+        Matrix T = new Matrix();
+        int[] freq = new int[L];
+        int ans = 0;
+        
+        for (int i = 0; i < L; i++)
+        {
+            for (int j = 1; j <= nums[i]; j++)
+            {
+                T.a[(i + j) % L, i] = 1;
+            }
+        }
+        
+        Matrix subRes = QuickMultiply(T, t);
+
+        foreach (var ch in s)
+        {
+            freq[ch - 'a']++;
+        }
+
+
+        for (int i = 0; i < L; i++)
+        {
+            for (int j = 0; j < L; j++)
+            {
+                ans = (int)((ans + (long)subRes.a[i, j] * freq[j]) % MOD);
+            }
+        }
+
+        return ans;
+    }
+    
+    // 217. Contains Duplicate
+    public bool ContainsDuplicate(int[] nums) {
+        return new HashSet<int>(nums).Count != nums.Length;
+    }
+    
+    // 219. Contains Duplicate II
+    
+    public bool ContainsNearbyDuplicate(int[] nums, int k) // [1, 0, 1, 1], k = 1
+    {
+        Dictionary<int, int> dict = new(nums.Length);
+
+        for (int i = 0; i < nums.Length; i++)
+        {
+            if (!dict.TryAdd(nums[i], i))
+            {
+                if ( Math.Abs(dict[nums[i]] - i) <= k )
+                {
+                    return true;
+                }
+
+                dict[nums[i]] = i;
+            }
+        }
+        return false;
+    }
+    
+    // 242. Valid Anagram
+    
+    public bool IsAnagram(string s, string t) {
+        var firstDict = new Dictionary<char, int>();
+        var secondDict = new Dictionary<char, int>();
+
+        foreach (var c in s)
+        {
+            if(!firstDict.TryAdd(c, 1))
+                firstDict[c]++;
+        }
+
+        foreach (var c in t)
+        {
+            if(!secondDict.TryAdd(c, 1))
+                secondDict[c]++;
+        }
+        if (firstDict.Count != secondDict.Count) return false;
+        var keys1 = firstDict.Keys;
+
+        foreach (var key in keys1)
+        {
+            if(!secondDict.TryGetValue(key, out var value)) return false;
+            if(firstDict[key] != value) return false;
+        }
+        return true;
+    }
+    
+    // LeetCode 1. Two Sum
+    
+    public int[] TwoSum(int[] nums, int target) { // [3,2,4], 6
+        var cache = new Dictionary<int, int>();
+        int[] ans = new int[2];
+        int n = nums.Length;
+        for (int i = 0; i < n; i++)
+        {
+            int needNum = target - nums[i];
+
+            if (cache.TryGetValue(needNum, out var value))
+            {
+                ans[0] = value;
+                ans[1] = i;
+                break;
+            }
+            if(!cache.ContainsKey(nums[i])) cache.Add(nums[i], i);
+        }
+        return ans;
+    }
+    
+    // LeetCode Daily 2900. Longest Unequal Adjacent Groups Subsequence I
+    public IList<string> GetLongestSubsequence(string[] words, int[] groups) { // ["a","b","c","d"] [1,0,1,1]
+        var ans = new List<string>();
+        var j = 0;
+        ans.Add(words[j]);
+        var n = groups.Length;
+
+        for (var i = 1; i < n; i++)
+        {
+            if (groups[i] == groups[j]) continue;
+            ans.Add(words[i]);
+            j = i;
+        }
+        return ans;
+    }
+    
+    // Yandex Top-100 Section
+    
+    
+    // 1. Line Reflection
+    public bool IsReflected(int[][] points)
+    {
+        HashSet<string> pointSet = new HashSet<string>();
+        
+        int? minX = null, maxX = null;
+
+        foreach (var point in points)
+        {
+            int x = point[0];
+            int y = point[1];
+
+            string key = x + "," + y;
+            pointSet.Add(key);
+            
+            if(minX == null || x < minX) minX = x;
+            if(maxX == null || x > maxX) maxX = x;
+        }
+        
+        if(pointSet.Count == 0) return true;
+        
+        
+        double sum = (double)minX! + (double)maxX!;
+
+        foreach (var po in points)
+        {
+            int x = po[0];
+            int y = po[1];
+
+            double refX = sum - x;
+            string refKey = refX + "," + y;
+
+            if (!pointSet.Contains(refKey)) return false;
+        }
+        return true;
+    }
+    
+    
 }
