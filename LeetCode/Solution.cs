@@ -615,7 +615,7 @@ public class Solution
     
     // 217. Contains Duplicate
     public bool ContainsDuplicate(int[] nums) {
-        return new HashSet<int>(nums).Count != nums.Length;
+        return new HashSet<int>(nums).Count != nums.Length;;
     }
     
     // 219. Contains Duplicate II
@@ -632,8 +632,10 @@ public class Solution
                 {
                     return true;
                 }
-
-                dict[nums[i]] = i;
+                else
+                {
+                    dict[nums[i]] = i;
+                }
             }
         }
         return false;
@@ -691,18 +693,265 @@ public class Solution
     // LeetCode Daily 2900. Longest Unequal Adjacent Groups Subsequence I
     public IList<string> GetLongestSubsequence(string[] words, int[] groups) { // ["a","b","c","d"] [1,0,1,1]
         var ans = new List<string>();
-        var j = 0;
+        int j = 0;
         ans.Add(words[j]);
-        var n = groups.Length;
+        int n = groups.Length;
 
-        for (var i = 1; i < n; i++)
+        for (int i = 1; i < n; i++)
         {
-            if (groups[i] == groups[j]) continue;
-            ans.Add(words[i]);
-            j = i;
+            if (groups[i] != groups[j])
+            {
+                ans.Add(words[i]);
+                j = i;
+            }
         }
         return ans;
     }
+    
+    // LeetCode 849. Maximize Distance to Closest Person
+    public int MaxDistToClosest(int[] seats) {
+        var maxDistance = 0;
+        var countZeros = 0;
+        for(var i = 0; i < seats.Length; i ++)
+        {
+            int currentDistance;
+            if(seats[i] == 0)
+                countZeros++; 
+        
+            if(seats[i] == 1 || i == seats.Length - 1)
+            {
+                if(i != 0 && i == countZeros || seats[i] == 0 && i == seats.Length - 1)
+                    currentDistance = countZeros;
+                else
+                    currentDistance = (countZeros + 1)/2;
+
+                if(currentDistance > maxDistance)
+                    maxDistance = currentDistance;
+
+                countZeros = 0;    
+            }
+        }
+        
+        return maxDistance;
+    }
+    
+    // LeetCode 167. Two Sum II - Input Array Is Sorted
+    
+    public int[] TwoSum_2(int[] numbers, int target) {
+        int n = numbers.Length;
+        int left = 0;
+        int right = n - 1;
+        int[] ans = new int[2];
+        while(left < right){
+            if(numbers[left] + numbers[right] == target){
+                ans[0] = ++left;
+                ans[1] = ++right;
+                break;
+            }
+            if(numbers[left] + numbers[right] > target) right--;
+            if(numbers[left] + numbers[right] < target) left++;
+        }
+
+        return ans;
+    }
+    
+    // 2. Add Two Numbers
+    
+   //Definition for singly-linked list.
+    public class ListNode {
+        public int val;
+        public ListNode next;
+        public ListNode(int val=0, ListNode next=null) {
+            this.val = val;
+            this.next = next;
+        }
+    }
+    public ListNode AddTwoNumbers(ListNode l1, ListNode l2) {
+        int carry = 0;
+        ListNode ans = new ListNode();
+        ListNode curr = ans;
+
+        while(l1 != null || l2 != null || carry != 0){
+            int l1Val = (l1 != null) ? l1.val : 0;
+            int l2Val = (l2 != null) ? l2.val : 0;
+            int sum = l1Val + l2Val + carry;
+            carry = sum / 10;
+            curr.next = new ListNode(sum % 10);
+            curr = curr.next;
+            if (l1 != null) l1 = l1.next;
+            if (l2 != null) l2 = l2.next;
+        }
+
+        return ans.next;
+    }
+    
+    // LeetCode 415. Add Strings
+    
+    public string AddStrings(string num1, string num2) {
+        int n1 = num1.Length - 1;
+        int n2 = num2.Length - 1;
+        int carry = 0;
+        var ans = new StringBuilder();
+        while(n1 >= 0 || n2 >= 0 || carry > 0){
+            int x = (n1 >= 0) ? num1[n1] - '0' : 0;
+            int y = (n2 >= 0) ? num2[n2] - '0' : 0;
+            int sum = x + y + carry;
+            carry = sum / 10;
+            ans.Append((sum%10).ToString());
+            n1--;
+            n2--;
+        }
+
+        char[] chrarr = ans.ToString().ToCharArray();
+        Array.Reverse(chrarr);
+        return new string(chrarr);
+    }
+    
+    // LeetCode Fucking Paywall 1213. Intersection of Three Sorted Arrays
+
+    public int[] ArraysIntersection(int[] arr1, int[] arr2, int[] arr3)
+    {
+        var res = new List<int>();
+
+        int i = 0, j = 0, k = 0;
+
+        while (i < arr1.Length && j < arr2.Length && k < arr3.Length)
+        {
+            if (arr1[i] == arr2[j] && arr2[j] == arr3[k])
+            {
+                res.Add(arr1[i]);
+                i++;
+                j++;
+                k++;
+            }
+            else
+            {
+                int minVal = Math.Min(arr1[i], Math.Min(arr2[j], arr3[k]));
+                if (arr1[i] == minVal) i++;
+                if (arr2[j] == minVal) j++;
+                if (arr3[k] == minVal) k++;
+            }
+        }
+        return res.ToArray();
+    }
+    
+    // LeetCode Daily 2901. Longest Unequal Adjacent Groups Subsequence II
+    
+    public IList<string> GetWordsInLongestSubsequence(string[] words, int[] groups) {
+        var n = groups.Length;
+        int[] dp = new int[n];
+        int[] prev = new int[n];
+        Array.Fill(dp, 1);
+        Array.Fill(prev, -1);
+        int maxIndex = 0;
+
+        for(var i = 1; i < n; i++){
+            for(var j = 0; j < i; j++){
+                if (Check(words[i], words[j]) && dp[j]+1 > dp[i] && groups[i] != groups[j]){
+                    dp[i] = dp[j] + 1;
+                    prev[i] = j;
+                }
+            }
+            if(dp[i] > dp[maxIndex]){
+                maxIndex = i;
+            }
+        }
+
+        var ans = new List<string>();
+        for(var i = maxIndex; i >= 0; i = prev[i]){
+            ans.Add(words[i]);
+        }
+        ans.Reverse();
+        return ans;
+    }
+
+    private bool Check(string s1, string s2){
+        if(s1.Length != s2.Length){
+            return false;
+        }
+        int diff = 0;
+        for(var i = 0; i < s1.Length; i++){
+            if(s1[i] != s2[i]){
+                if(++diff > 1){
+                    return false;
+                }
+            }
+        }
+        return diff == 1;
+    }
+    
+    // LeetCode Daily 75. Sort Colors
+    
+    public void SortColors(int[] nums) {
+        int n = nums.Length;
+        int reds = 0;
+        int whites = 0;
+        int blues = 0;
+        for(int j = 0; j < n; j++){
+            switch(nums[j]){
+                case 0:
+                    reds++;
+                    break;
+                case 1:
+                    whites++;
+                    break;
+                case 2:
+                    blues++;
+                    break;
+            }
+        }
+        int i = 0;
+        while(reds > 0 || whites > 0 || blues > 0){
+            if(reds > 0) {
+                nums[i] = 0;
+                i++;
+                reds--;
+                continue;
+            }
+            if(whites > 0) {
+                nums[i] = 1;
+                i++;
+                whites--;
+                continue;
+            }
+            if(blues > 0) {
+                nums[i] = 2;
+                i++;
+                blues--;
+                continue;
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     // Yandex Top-100 Section
     
@@ -743,6 +992,9 @@ public class Solution
         }
         return true;
     }
+    
+    
+    
     
     
 }
